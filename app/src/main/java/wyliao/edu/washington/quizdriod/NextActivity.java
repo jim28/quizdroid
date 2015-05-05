@@ -4,13 +4,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -26,6 +31,7 @@ public class NextActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.introduction);
+
 
 
 
@@ -84,15 +90,15 @@ public class NextActivity extends ActionBarActivity {
 
                 }
 
-//                questionIntent.putExtra("q1",qtSet[0]);
-//                questionIntent.putExtra("q2",qtSet[1]);
-//                questionIntent.putExtra("q3",qtSet[2]);
-//                questionIntent.putExtra("q4",qtSet[3]);
-//                questionIntent.putExtra("q5",qtSet[4]);
-//                questionIntent.putExtra("q6",qtSet[5]);
-//                questionIntent.putExtra("q7",qtSet[6]);
-//                questionIntent.putExtra("q8",qtSet[7]);
-//                questionIntent.putExtra("q9",qtSet[8]);
+
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.contentContainer, new SecondFragment())
+                        .setTransition(0)
+                        .commit();
+
+
+
+
                 questionIntent.putExtra("catag",topicID);
                 questionIntent.putExtra("state",1);
                 startActivity(questionIntent);
@@ -100,6 +106,7 @@ public class NextActivity extends ActionBarActivity {
 
             }
         });
+
 
 
 
@@ -129,5 +136,14 @@ public class NextActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public static class PlaceholderFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                        Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.introduction, container, false);
+            return rootView;
+        }
     }
 }

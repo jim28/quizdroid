@@ -1,30 +1,34 @@
 package wyliao.edu.washington.quizdriod;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 
 
-public class MainActivity extends ActionBarActivity {
+public class contentFragmentActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+        setContentView(R.layout.contentActivity);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.contentContainer, new NextActivity())
+                    .add(R.id.contentContainer, new PlaceholderFragment())
                     .commit();
         }
+
+
+
+
+
 
 
         TableLayout topicTable = (TableLayout)findViewById(R.id.table);
@@ -37,7 +41,7 @@ public class MainActivity extends ActionBarActivity {
                 @Override
                 public void onClick(View v) {
                     View textView =((ViewGroup)v).getChildAt(0);
-                    Intent next = new Intent(MainActivity.this,NextActivity.class);
+                    Intent next = new Intent(contentFragmentActivity.this,NextActivity.class);
                     Log.v("WenIDShit",String.valueOf(textView.getId()));
                     next.putExtra("topic",textView.getId());
                     startActivity(next);
