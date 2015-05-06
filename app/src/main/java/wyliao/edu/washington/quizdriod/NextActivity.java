@@ -10,11 +10,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.Hashtable;
@@ -37,6 +39,7 @@ public class NextActivity extends ActionBarActivity {
 
         Intent launchingIntent = getIntent();
         final int topicID = launchingIntent.getIntExtra("topic",0);
+
         TextView introText = (TextView) findViewById(R.id.intrContext);
         Log.v("Wen",String.valueOf(topicID));
         switch (topicID) {
@@ -68,7 +71,6 @@ public class NextActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 Map testSet = new TestSet().getTestSet();
-                Intent questionIntent = new Intent(NextActivity.this,QuestionActivity.class);
                 final String[][] qtSet;
 
                 switch (topicID) {
@@ -90,29 +92,52 @@ public class NextActivity extends ActionBarActivity {
 
                 }
 
-
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.contentContainer, new SecondFragment())
-                        .setTransition(0)
-                        .commit();
-
-
-
-
-                questionIntent.putExtra("catag",topicID);
-                questionIntent.putExtra("state",1);
-                startActivity(questionIntent);
-                finish();
+                showQues(1,topicID,0);
 
             }
         });
 
+    }
+
+    public void loadAns(int count, int catag, int rightAns, int userAns) {
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
 
 
+        Bundle ansBundle = new Bundle();
+        ansBundle.putInt("status",count);
+        ansBundle.putInt("catag",catag);
+        ansBundle.putInt("rightAns",rightAns);
+        ansBundle.putInt("userAns",userAns);
+        Log.v("Wen","call loadAnd");
 
+        AnswerFragment answerFragment = new AnswerFragment();
+        answerFragment.setArguments(ansBundle);
 
+        ft.add(R.id.contentContainer, answerFragment);
+        ft.commit();
+    }
 
+    public void showQues(int count, int catag, int rightAns) {
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
 
+        Bundle quesBundle = new Bundle();
+        quesBundle.putInt("status",++count);
+        quesBundle.putInt("catag",catag);
+        quesBundle.putInt("rightAns",rightAns);
+
+        QuestionFragment quesFragment = new QuestionFragment();
+        quesFragment.setArguments(quesBundle);
+
+        ft.add(R.id.contentContainer, quesFragment);
+        ft.commit();
+
+    }
+
+    public void goBackMain () {
+        Intent mainActivity = new Intent(this,MainActivity.class);
+        startActivity(mainActivity);
     }
 
 
@@ -138,12 +163,8 @@ public class NextActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static class PlaceholderFragment extends Fragment {
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                        Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.introduction, container, false);
-            return rootView;
-        }
-    }
+
+
+
+
 }
