@@ -7,6 +7,7 @@ package wyliao.edu.washington.quizdriod;
 
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -20,6 +21,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.util.Map;
+
 
 public class QuestionFragment extends Fragment{
 
@@ -31,7 +34,13 @@ public class QuestionFragment extends Fragment{
     int rightAns;
     int ans;
     Button submitBtn;
+    String[] testDataAr;
 
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        this.hostActivity = activity;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,6 +49,9 @@ public class QuestionFragment extends Fragment{
             count = getArguments().getInt("status", 0);
             catag = getArguments().getInt("catag", 0);
             rightAns = getArguments().getInt("rightAns", 0);
+            Map test = new TestSet().getTestSet();
+            String[][] testDataArSet = (String[][]) new TestSet().getTestSet().get(catag);
+            testDataAr = testDataArSet[count];
         }
 
     }
@@ -51,8 +63,7 @@ public class QuestionFragment extends Fragment{
 
         View v = inflater.inflate(R.layout.fragment_question, container, false);
 
-        String[][] testDataArSet = (String[][]) new TestSet().getTestSet().get(catag);
-        String[] testDataAr = testDataArSet[count];
+
 
         //setting layout
         TextView qtTitle = (TextView)v.findViewById(R.id.qtTitle);
@@ -70,62 +81,9 @@ public class QuestionFragment extends Fragment{
 
         submitBtn = (Button) v.findViewById(R.id.submit);
 
-        RadioGroup radioGroup = (RadioGroup)v.findViewById(R.id.choices);
-        radioGroup.setOnCheckedChangeListener(new onCheckedChangeListner(){
+        ((NextActivity)hostActivity).updateCond(0,0,0,0,ans);
 
-                                              }
-
-
-        );
 
         return  v;
     }
-
-
-    private class onCheckedChangeListner implements RadioGroup.OnCheckedChangeListener {
-        @Override
-        public void onCheckedChanged(RadioGroup group, int checkedId) {
-
-          View view =group.findViewById(checkedId);
-
-
-            checked = ((RadioButton) view).isChecked();
-            final View radioClickBtn = view;
-
-            //check the answer
-            if(checked) {
-                submitBtn.setVisibility(View.VISIBLE);
-
-                submitBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int userAns = 0;
-                        switch (radioClickBtn.getId()) {
-                            case R.id.aws1:
-                                userAns = 1;
-                                break;
-                            case R.id.aws2:
-                                userAns = 2;
-                                break;
-                            case R.id.aws3:
-                                userAns = 3;
-                                break;
-                            case R.id.aws4:
-                                userAns = 4;
-                                break;
-                        }
-                        Log.v("wen", "click bto");
-                        if(userAns==ans)
-                            rightAns++;
-                        if(hostActivity instanceof NextActivity) {
-                            ((NextActivity)hostActivity).loadAns(count,catag,rightAns,userAns);
-                        }
-
-                    }
-                });
-            }
-
-        }
-    }
-
 }

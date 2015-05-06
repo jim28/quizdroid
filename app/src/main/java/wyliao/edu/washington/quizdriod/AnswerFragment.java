@@ -29,6 +29,11 @@ public class AnswerFragment extends Fragment {
     private Activity hostActivity;
 
 
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        this.hostActivity = activity;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,7 +83,9 @@ public class AnswerFragment extends Fragment {
                 } else {
                     if(hostActivity instanceof NextActivity) {
                         //show next Ques
-                        ((NextActivity)hostActivity).showQues(++count, catag, rightAns);
+                        count++;
+                        ((NextActivity) hostActivity).updateCond(userAns,rightAns,count,catag,0);
+                        ((NextActivity)hostActivity).showQues();
                     }
                 }
             }

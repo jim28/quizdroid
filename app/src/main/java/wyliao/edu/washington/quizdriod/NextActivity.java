@@ -25,8 +25,11 @@ import java.util.Map;
 
 public class NextActivity extends ActionBarActivity {
     //Product the Data
-
-
+    int userAns;
+    int rightAns;
+    int corrAns;
+    int count;
+    int catag;
 
 
     @Override
@@ -35,13 +38,11 @@ public class NextActivity extends ActionBarActivity {
         setContentView(R.layout.introduction);
 
 
-
-
         Intent launchingIntent = getIntent();
-        final int topicID = launchingIntent.getIntExtra("topic",0);
+        final int topicID = launchingIntent.getIntExtra("topic", 0);
 
         TextView introText = (TextView) findViewById(R.id.intrContext);
-        Log.v("Wen",String.valueOf(topicID));
+        Log.v("Wen", String.valueOf(topicID));
         switch (topicID) {
             case R.id.math:
                 introText.setText("Math Section: \n\nTest your basic calculation! +,-,*,/ test\nThere are nine questions !");
@@ -62,11 +63,11 @@ public class NextActivity extends ActionBarActivity {
                         "There are nine questions !");
                 break;
             default:
-                Log.v("Wen","Fail to catch the ID");
+                Log.v("Wen", "Fail to catch the ID");
                 break;
         }
 
-        Button bgBtn = (Button)findViewById(R.id.begin);
+        Button bgBtn = (Button) findViewById(R.id.begin);
         bgBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,68 +76,71 @@ public class NextActivity extends ActionBarActivity {
 
                 switch (topicID) {
                     case R.id.math:
-                        qtSet = (String[][])testSet.get("mathSet");
+                        qtSet = (String[][]) testSet.get("mathSet");
                         break;
                     case R.id.physics:
-                        qtSet = (String[][])testSet.get("physicsSet");
+                        qtSet = (String[][]) testSet.get("physicsSet");
                         break;
                     case R.id.marvel:
-                        qtSet = (String[][])testSet.get("marvelSet");
+                        qtSet = (String[][]) testSet.get("marvelSet");
                         break;
                     case R.id.circuit:
-                        qtSet = (String[][])testSet.get("circuitSet");
+                        qtSet = (String[][]) testSet.get("circuitSet");
                         break;
                     default:
-                        Log.v("Wen","Data doesn't load");
+                        Log.v("Wen", "Data doesn't load");
                         break;
 
                 }
+                catag = topicID;
+                count =1;
 
-                showQues(1,topicID,0);
+                showQues();
 
             }
         });
 
     }
 
-    public void loadAns(int count, int catag, int rightAns, int userAns) {
+    public void loadAns() {
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(R.animator.enter_from_right,R.animator.exit_to_left);
 
 
         Bundle ansBundle = new Bundle();
-        ansBundle.putInt("status",count);
-        ansBundle.putInt("catag",catag);
-        ansBundle.putInt("rightAns",rightAns);
-        ansBundle.putInt("userAns",userAns);
-        Log.v("Wen","call loadAnd");
+        ansBundle.putInt("status", count);
+        ansBundle.putInt("catag", catag);
+        ansBundle.putInt("rightAns", rightAns);
+        ansBundle.putInt("userAns", userAns);
+        Log.v("Wen", "call loadAnd");
 
         AnswerFragment answerFragment = new AnswerFragment();
         answerFragment.setArguments(ansBundle);
 
-        ft.add(R.id.contentContainer, answerFragment);
+        ft.replace(R.id.contentContainer, answerFragment);
         ft.commit();
     }
 
-    public void showQues(int count, int catag, int rightAns) {
+    public void showQues() {
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
 
         Bundle quesBundle = new Bundle();
-        quesBundle.putInt("status",++count);
-        quesBundle.putInt("catag",catag);
-        quesBundle.putInt("rightAns",rightAns);
+        quesBundle.putInt("status", count);
+        quesBundle.putInt("catag", catag);
+        quesBundle.putInt("rightAns", rightAns);
 
         QuestionFragment quesFragment = new QuestionFragment();
         quesFragment.setArguments(quesBundle);
 
-        ft.add(R.id.contentContainer, quesFragment);
+        ft.replace(R.id.contentContainer, quesFragment);
         ft.commit();
 
     }
 
-    public void goBackMain () {
-        Intent mainActivity = new Intent(this,MainActivity.class);
+    public void goBackMain() {
+        Intent mainActivity = new Intent(this, MainActivity.class);
         startActivity(mainActivity);
     }
 
@@ -163,8 +167,59 @@ public class NextActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //Question call back function
+    public void onRadioButtonClicked(View view) {
 
 
+        boolean checked = ((RadioButton) view).isChecked();
+        final View radioClickBtn = view;
 
+        //check the answer
+        if (checked) {
+            Button submitBtn = (Button) findViewById(R.id.submit);
+            submitBtn.setVisibility(View.VISIBLE);
+
+            submitBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    switch (radioClickBtn.getId()) {
+                        case R.id.aws1:
+                            userAns = 1;
+                            break;
+                        case R.id.aws2:
+                            userAns = 2;
+                            break;
+                        case R.id.aws3:
+                            userAns = 3;
+                            break;
+                        case R.id.aws4:
+                            userAns = 4;
+                            break;
+                    }
+                    if (userAns == corrAns)
+                        rightAns++;
+
+                    loadAns();
+
+                }
+            });
+        }
+
+    }
+
+
+    public void updateCond(int new_ans,int new_rightAns, int new_count, int new_catag, int new_corrAns) {
+
+        if (new_ans!=0)
+            userAns = new_ans;
+        if (new_rightAns!=0)
+            rightAns = new_rightAns;
+        if (new_count!=0)
+            count = new_count;
+        if (new_catag!=0)
+            catag = new_catag;
+        if (new_corrAns!=0)
+            corrAns = new_corrAns;
+    }
 
 }
