@@ -21,6 +21,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 
@@ -35,6 +36,7 @@ public class QuestionFragment extends Fragment{
     int ans;
     Button submitBtn;
     String[] testDataAr;
+    Quiz curQues;
 
     @Override
     public void onAttach(Activity activity) {
@@ -55,9 +57,10 @@ public class QuestionFragment extends Fragment{
 
 
             QuizApp quizApp = (QuizApp) getActivity().getApplication();
-            String[][] testDataArSet = quizApp.getQuestionSet(catag);
+            ArrayList<Quiz> quizSet = quizApp.getQuestionSet(catag);
 
-            testDataAr = testDataArSet[count];
+
+            curQues = quizSet.get(count);
 
 
         }
@@ -75,17 +78,17 @@ public class QuestionFragment extends Fragment{
 
         //setting layout
         TextView qtTitle = (TextView)v.findViewById(R.id.qtTitle);
-        qtTitle.setText(testDataAr[0]);
-        ans = Integer.valueOf(testDataAr[1]);
+        qtTitle.setText(curQues.quesText);
+        ans = curQues.ans;
 
         RadioButton op1 = (RadioButton) v.findViewById(R.id.aws1);
-        op1.setText(testDataAr[2]);
+        op1.setText(curQues.choiceList.get(0));
         RadioButton op2 = (RadioButton) v.findViewById(R.id.aws2);
-        op2.setText(testDataAr[3]);
+        op2.setText(curQues.choiceList.get(1));
         RadioButton op3 = (RadioButton) v.findViewById(R.id.aws3);
-        op3.setText(testDataAr[4]);
+        op3.setText(curQues.choiceList.get(2));
         RadioButton op4 = (RadioButton) v.findViewById(R.id.aws4);
-        op4.setText(testDataAr[5]);
+        op4.setText(curQues.choiceList.get(3));
 
         submitBtn = (Button) v.findViewById(R.id.submit);
 

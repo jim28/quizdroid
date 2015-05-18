@@ -12,6 +12,6 @@ public interface TopicRepository {
     public String[] getAllTopics();
     public String shortDescr(int id);
     public String longDescr(int id);
-    public String[][] getQuestionSet(int id);
+    public ArrayList<Quiz> getQuestionSet(int id);
 
 }

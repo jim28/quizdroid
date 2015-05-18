@@ -27,7 +27,7 @@ import java.util.Map;
 public class NextActivity extends ActionBarActivity {
     //Product the Data
     int userAns;
-    int rightAns;
+    int rightAnsNum;
     int corrAns;
     int count;
     int catag;
@@ -57,7 +57,7 @@ public class NextActivity extends ActionBarActivity {
             public void onClick(View v) {
 
                 catag = topicID;
-                count =1;
+                count =0;
 
                 showQues();
 
@@ -71,11 +71,11 @@ public class NextActivity extends ActionBarActivity {
         FragmentTransaction ft = fm.beginTransaction();
         ft.setCustomAnimations(R.animator.enter_from_right,R.animator.exit_to_left);
 
-
+        count++;
         Bundle ansBundle = new Bundle();
         ansBundle.putInt("status", count);
         ansBundle.putInt("catag", catag);
-        ansBundle.putInt("rightAns", rightAns);
+        ansBundle.putInt("rightAns", rightAnsNum);
         ansBundle.putInt("userAns", userAns);
         Log.v("Wen", "call loadAnd");
 
@@ -93,7 +93,7 @@ public class NextActivity extends ActionBarActivity {
         Bundle quesBundle = new Bundle();
         quesBundle.putInt("status", count);
         quesBundle.putInt("catag", catag);
-        quesBundle.putInt("rightAns", rightAns);
+        quesBundle.putInt("rightAns", rightAnsNum);
 
         QuestionFragment quesFragment = new QuestionFragment();
         quesFragment.setArguments(quesBundle);
@@ -161,7 +161,7 @@ public class NextActivity extends ActionBarActivity {
                             break;
                     }
                     if (userAns == corrAns)
-                        rightAns++;
+                        rightAnsNum++;
 
                     loadAns();
 
@@ -172,12 +172,12 @@ public class NextActivity extends ActionBarActivity {
     }
 
 
-    public void updateCond(int new_ans,int new_rightAns, int new_count, int new_catag, int new_corrAns) {
+    public void updateCond(int new_ans,int new_rightAnsNum, int new_count, int new_catag, int new_corrAns) {
 
         if (new_ans!=0)
             userAns = new_ans;
-        if (new_rightAns!=0)
-            rightAns = new_rightAns;
+        if (new_rightAnsNum!=0)
+            rightAnsNum = new_rightAnsNum;
         if (new_count!=0)
             count = new_count;
         if (new_catag!=0)

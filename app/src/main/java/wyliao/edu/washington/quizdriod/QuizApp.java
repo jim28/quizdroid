@@ -109,10 +109,11 @@ public class QuizApp extends Application implements TopicRepository {
                     quesList.add(quiz);
                 }
 
+
                 topic.title = eachCata.getString("title");
                 topic.shortDiscr = eachCata.getString("title");
                 topic.longDiscr = eachCata.getString("desc");
-                topic.quizList.add(quiz);
+                topic.quizList = quesList;
                 topicList.add(topic);
 
             }
@@ -188,24 +189,21 @@ public class QuizApp extends Application implements TopicRepository {
         }
     }
 
-    public String[][] getQuestionSet(int id){
+    public ArrayList<Quiz> getQuestionSet(int id){
         switch (id) {
             case R.id.math:
                 return topicList.get(0).quizList;
 
             case R.id.physics:
-                return topicList.get(1).shortDiscr;
+                return topicList.get(1).quizList;
 
             case R.id.marvel:
-                return topicList.get(2).shortDiscr;
+                return topicList.get(2).quizList;
 
             default:
                 Log.v("Wen", "Fail to catch the ID");
-                return "Error";
+                return null;
 
         }
-
-        String[][] set = null;
-        return set;
     }
 }
