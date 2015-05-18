@@ -54,7 +54,8 @@ public class AnswerFragment extends Fragment {
         //Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_answer, container, false);
 
-        String[][] testDataArSet = (String[][]) new TestSet().getTestSet().get(catag);
+        String[][] testDataArSet = null;
+//        String[][] testDataArSet = (String[][]) new TestSet().getTestSet().get(catag);
         String[] testDataAr = testDataArSet[count];
 
         //setting layout

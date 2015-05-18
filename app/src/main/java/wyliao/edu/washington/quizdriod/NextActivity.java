@@ -2,6 +2,7 @@ package wyliao.edu.washington.quizdriod;
 
 import android.content.Intent;
 import android.os.Bundle;
+//import android.support.v4.widget.SearchViewCompatIcs;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,55 +44,18 @@ public class NextActivity extends ActionBarActivity {
 
         TextView introText = (TextView) findViewById(R.id.intrContext);
         Log.v("Wen", String.valueOf(topicID));
-        switch (topicID) {
-            case R.id.math:
-                introText.setText("Math Section: \n\nTest your basic calculation! +,-,*,/ test\nThere are nine questions !");
-                break;
-            case R.id.physics:
-                introText.setText("Physics Section: \n\n" +
-                        "Test your basic conceptual physics knowledge! \n" +
-                        "There are nine questions !");
-                break;
-            case R.id.marvel:
-                introText.setText("Marvel Super Heroes Section:\n\n" +
-                        "I don't know what is this ! Just random questions about author\n" +
-                        "There are nine questions !");
-                break;
-            case R.id.circuit:
-                introText.setText("Circuit Section:\n\n" +
-                        "Test your basic circuit term!\n" +
-                        "There are nine questions !");
-                break;
-            default:
-                Log.v("Wen", "Fail to catch the ID");
-                break;
-        }
+
+        final QuizApp quizApp = (QuizApp) getApplication();
+
+        introText.setText(quizApp.shortDescr(topicID)+"\n\n"+quizApp.longDescr(topicID));
+
+
 
         Button bgBtn = (Button) findViewById(R.id.begin);
         bgBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Map testSet = new TestSet().getTestSet();
-                final String[][] qtSet;
 
-                switch (topicID) {
-                    case R.id.math:
-                        qtSet = (String[][]) testSet.get("mathSet");
-                        break;
-                    case R.id.physics:
-                        qtSet = (String[][]) testSet.get("physicsSet");
-                        break;
-                    case R.id.marvel:
-                        qtSet = (String[][]) testSet.get("marvelSet");
-                        break;
-                    case R.id.circuit:
-                        qtSet = (String[][]) testSet.get("circuitSet");
-                        break;
-                    default:
-                        Log.v("Wen", "Data doesn't load");
-                        break;
-
-                }
                 catag = topicID;
                 count =1;
 

@@ -49,9 +49,17 @@ public class QuestionFragment extends Fragment{
             count = getArguments().getInt("status", 0);
             catag = getArguments().getInt("catag", 0);
             rightAns = getArguments().getInt("rightAns", 0);
-            Map test = new TestSet().getTestSet();
-            String[][] testDataArSet = (String[][]) new TestSet().getTestSet().get(catag);
+
+//            Map test = new TestSet().getTestSet();
+//            String[][] testDataArSet = (String[][]) new TestSet().getTestSet().get(catag);
+
+
+            QuizApp quizApp = (QuizApp) getActivity().getApplication();
+            String[][] testDataArSet = quizApp.getQuestionSet(catag);
+
             testDataAr = testDataArSet[count];
+
+
         }
 
     }
