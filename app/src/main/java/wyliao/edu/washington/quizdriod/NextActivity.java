@@ -57,7 +57,7 @@ public class NextActivity extends ActionBarActivity {
             public void onClick(View v) {
 
                 catag = topicID;
-                count =0;
+                count =-1;
 
                 showQues();
 
@@ -71,7 +71,6 @@ public class NextActivity extends ActionBarActivity {
         FragmentTransaction ft = fm.beginTransaction();
         ft.setCustomAnimations(R.animator.enter_from_right,R.animator.exit_to_left);
 
-        count++;
         Bundle ansBundle = new Bundle();
         ansBundle.putInt("status", count);
         ansBundle.putInt("catag", catag);
@@ -90,6 +89,7 @@ public class NextActivity extends ActionBarActivity {
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
 
+        count++;
         Bundle quesBundle = new Bundle();
         quesBundle.putInt("status", count);
         quesBundle.putInt("catag", catag);

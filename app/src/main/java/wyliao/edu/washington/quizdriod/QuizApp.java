@@ -78,7 +78,7 @@ public class QuizApp extends Application implements TopicRepository {
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 Topic topic = new Topic();
-                Quiz quiz = new Quiz();
+
 
 
                 JSONObject eachCata = jsonArray.getJSONObject(i);
@@ -89,6 +89,7 @@ public class QuizApp extends Application implements TopicRepository {
 
                 for (int j = 0; j < questJSAry.length(); j++) {
                     JSONObject eachQues = questJSAry.getJSONObject(j);
+                    Quiz quiz = new Quiz();
                     quiz.quesText = eachQues.getString("text");
 
 
