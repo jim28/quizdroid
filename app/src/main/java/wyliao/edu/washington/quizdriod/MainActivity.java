@@ -42,21 +42,19 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        updateData();
+        Log.i("Wen","start MainActivity");
 
         //Register Receiver for notice of "Download has complete"
         IntentFilter filter = new IntentFilter();
         filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        registerReceiver(alarmReceiver, filter);
-
+        registerReceiver(downLoadCmpReceiver, filter);
 
     }
 
 
-    //set alarm
-    final SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-
-    BroadcastReceiver alarmReceiver = new BroadcastReceiver() {
+    BroadcastReceiver downLoadCmpReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
@@ -96,6 +94,16 @@ public class MainActivity extends ActionBarActivity {
                                     FileInputStream fis = new FileInputStream(file.getFileDescriptor());
 
                                     // YOUR CODE HERE [convert file to String here]
+                                    byte[] buffer = new byte[1024];
+                                    int n;
+
+                                    while((n=fis.read(buffer)) != -1) {
+                                        strContent.append(new String(buffer,0,n));
+                                    }
+
+                                    QuizApp quizApp = (QuizApp)getApplication();
+                                    quizApp.writeToFile(strContent.toString());
+                                    quizApp.loadData();
                                     updateData();
 
                                     // YOUR CODE HERE [write string to data/data.json]
@@ -119,6 +127,8 @@ public class MainActivity extends ActionBarActivity {
                                 }
                                 break;
                             case DownloadManager.STATUS_FAILED:
+                                Toast.makeText(context, "download fail !!!!", Toast.LENGTH_LONG).show();
+
                                 // YOUR CODE HERE! Your download has failed! Now what do you want it to do? Retry? Quit application? up to you!
                                 break;
                         }
@@ -174,6 +184,7 @@ public class MainActivity extends ActionBarActivity {
         for(int i=0;i>-1;i++) {
             View row = (View)topicTable.getChildAt(i);
 
+            Log.i("Wen","update");
 
             if(row==null)
                 break;

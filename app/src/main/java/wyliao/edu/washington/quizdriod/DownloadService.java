@@ -6,6 +6,7 @@ import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -39,20 +40,25 @@ public class DownloadService extends IntentService {
         // Hooray! This method is called where the AlarmManager shouldve started the download service and we just received it here!
 
         // Specify the url you want to download here
-        String url = "http://tednewardsandbox.site44.com/questions.json";
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String url = sharedPrefs.getString("urlDld","http://tednewardsandbox.site44.com/questions.json");
+
 
         Log.i("DownloadService", "should be downloading here");
 
         // Star the download
         dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         enqueue = dm.enqueue(request);
 
 
     }
 
-    public static void startOrStopAlarm(Context context, boolean on) {
+    public static void startOrStopAlarm(Context context, boolean on, int time) {
         Log.i("DownloadService", "startOrStopAlarm on = " + on);
+
+
 
         Intent alarmReceiverIntent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, Wen_ALARM, alarmReceiverIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -60,12 +66,9 @@ public class DownloadService extends IntentService {
         AlarmManager manager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 
         if (on) {
-
-            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-            int time = Integer.parseInt(sharedPrefs.getString("time","10"));
             Log.i("DownloadService", "setting alarm to " + time);
             // Start the alarm manager to repeat
-            manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), time, pendingIntent);
+            manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), time, pendingIntent);
         }
         else {
             manager.cancel(pendingIntent);

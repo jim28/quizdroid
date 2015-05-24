@@ -1,6 +1,9 @@
 package wyliao.edu.washington.quizdriod;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -48,7 +51,12 @@ public class QuizApp extends Application implements TopicRepository {
 //        }
 
         //Start the Download service
-        DownloadService.startOrStopAlarm(this, true);
+
+
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int time = Integer.parseInt(sharedPrefs.getString("time","10000"));
+        DownloadService.startOrStopAlarm(this, true, time);
+        topicList = loadData();
 
     }
 
@@ -88,7 +96,7 @@ public class QuizApp extends Application implements TopicRepository {
             }
             else {
                 Log.i("Wen", "Fetch from asset");
-                inputStream = getAssets().open("questins.json");
+                inputStream = getAssets().open("questions.json");
             }
 
             json = readJSONFile(inputStream);
@@ -236,7 +244,7 @@ public class QuizApp extends Application implements TopicRepository {
         try {
             Log.i("MyApp", "writing downloaded to file");
 
-            File file = new File(getFilesDir().getAbsolutePath(), "data.json");
+            File file = new File(getFilesDir().getAbsolutePath(), "wen.json");
             FileOutputStream fos = new FileOutputStream(file);
             fos.write(data.getBytes());
             fos.close();
