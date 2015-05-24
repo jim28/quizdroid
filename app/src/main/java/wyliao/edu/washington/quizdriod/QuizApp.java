@@ -7,6 +7,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -37,13 +40,15 @@ public class QuizApp extends Application implements TopicRepository {
     public void onCreate() {
         super.onCreate();
 
+        Log.i("Wen", "QuizApp is running");
 
+//        topicList = this.loadData();
+//        if(topicList == null) {
+//            Log.e("QuizApp","Data don't load !");
+//        }
 
-        topicList = this.loadData();
-
-        if(topicList == null) {
-            Log.e("QuizApp","Data don't load !");
-        }
+        //Start the Download service
+        DownloadService.startOrStopAlarm(this, true);
 
     }
 
@@ -60,8 +65,13 @@ public class QuizApp extends Application implements TopicRepository {
 
 
     @Override
+    //load data from jason file to data structure
     public ArrayList<Topic> loadData() {
         ArrayList<Topic> topicList = new ArrayList<Topic>();
+
+
+        //first check the file whether it is existing
+
 
 
         String json = null;
@@ -69,7 +79,18 @@ public class QuizApp extends Application implements TopicRepository {
         // Fetch data.json in assets/ folder
         try {
 
-            InputStream inputStream = getAssets().open("questions.json");
+            InputStream inputStream = null;
+            //determine which file should be used
+            File myFile = new File(getFilesDir().getAbsolutePath(), "/wen.json");
+            if(myFile.exists()) {
+                Log.i("Wen","wen.json exist");
+                inputStream =openFileInput("wen.json");
+            }
+            else {
+                Log.i("Wen", "Fetch from asset");
+                inputStream = getAssets().open("questins.json");
+            }
+
             json = readJSONFile(inputStream);
 
             //construct Domain objects
@@ -207,4 +228,26 @@ public class QuizApp extends Application implements TopicRepository {
 
         }
     }
+
+
+
+
+    public void writeToFile(String data) {
+        try {
+            Log.i("MyApp", "writing downloaded to file");
+
+            File file = new File(getFilesDir().getAbsolutePath(), "data.json");
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(data.getBytes());
+            fos.close();
+        }
+        catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+
 }
+
+
+

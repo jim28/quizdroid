@@ -1,12 +1,15 @@
 package wyliao.edu.washington.quizdriod;
 
 import android.app.AlarmManager;
+import android.app.DownloadManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -23,11 +26,16 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 
 public class MainActivity extends ActionBarActivity {
 
     AlarmManager am;
     PendingIntent alarmIntent = null;
+    private DownloadManager dm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,40 +43,118 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
 
-
-        //set alarm
-        final SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-
-
+        //Register Receiver for notice of "Download has complete"
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        registerReceiver(alarmReceiver, filter);
 
 
-        BroadcastReceiver alarmReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
+    }
 
-                Toast.makeText(MainActivity.this,sharedPrefs.getString("urlDld","http://tednewardsandbox.site44.com/questions.json"),Toast.LENGTH_SHORT).show();
-                int interval = Integer.parseInt(sharedPrefs.getString("time","1"))*1000*8;
-                am.setRepeating(AlarmManager.RTC, System.currentTimeMillis()+3000,interval,alarmIntent);
 
+    //set alarm
+    final SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+
+    BroadcastReceiver alarmReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String action = intent.getAction();
+
+            dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+
+            Log.i("MyApp BroadcastReceiver", "onReceive of registered download reciever");
+
+            if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
+                Log.i("MyApp BroadcastReceiver", "download complete!");
+                long downloadID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
+
+                // if the downloadID exists
+                if (downloadID != 0) {
+
+                    // Check status
+                    DownloadManager.Query query = new DownloadManager.Query();
+                    query.setFilterById(downloadID);
+                    Cursor c = dm.query(query);
+                    if (c.moveToFirst()) {
+                        int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                        Log.d("DM Sample", "Status Check: " + status);
+                        switch (status) {
+                            case DownloadManager.STATUS_PAUSED:
+                            case DownloadManager.STATUS_PENDING:
+                            case DownloadManager.STATUS_RUNNING:
+                                break;
+                            case DownloadManager.STATUS_SUCCESSFUL:
+                                // The download-complete message said the download was "successfu" then run this code
+                                ParcelFileDescriptor file;
+                                StringBuffer strContent = new StringBuffer("");
+
+                                try {
+                                    // Get file from Download Manager (which is a system service as explained in the onCreate)
+                                    file = dm.openDownloadedFile(downloadID);
+                                    FileInputStream fis = new FileInputStream(file.getFileDescriptor());
+
+                                    // YOUR CODE HERE [convert file to String here]
+                                    updateData();
+
+                                    // YOUR CODE HERE [write string to data/data.json]
+                                    //      [hint, i wrote a writeFile method in MyApp... figure out how to call that from inside this Activity]
+
+                                    // convert your json to a string and echo it out here to show that you did download it
+
+
+
+                                    /*
+
+                                    String jsonString = ....myjson...to string().... chipotle burritos.... blah
+                                    Log.i("MyApp - Here is the json we download:", jsonString);
+
+                                    */
+
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case DownloadManager.STATUS_FAILED:
+                                // YOUR CODE HERE! Your download has failed! Now what do you want it to do? Retry? Quit application? up to you!
+                                break;
+                        }
+                    }
+                }
             }
-        };
+        }
 
 
-        registerReceiver(alarmReceiver, new IntentFilter("wyliao.edu.washington.quizdriod"));
+//        Toast.makeText(MainActivity.this,sharedPrefs.getString("urlDld","http://tednewardsandbox.site44.com/questions.json"),Toast.LENGTH_SHORT).show();
+//
+//        int interval = Integer.parseInt(sharedPrefs.getString("time", "1")) * 1000 * 8;
+//        am.setRepeating(AlarmManager.RTC,System.currentTimeMillis()+3000,interval,alarmIntent);
+//
+//
+//        registerReceiver(alarmReceiver, new IntentFilter("wyliao.edu.washington.quizdriod");
+//
+//
+//
+//        am=(AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//
+//        Intent intent = new Intent();
+//        intent.setAction("wyliao.edu.washington.quizdriod");
+//        alarmIntent=PendingIntent.getBroadcast(this,0,intent,0);
+//        int interval = Integer.parseInt(sharedPrefs.getString("time", "1")) * 1000 * 8;
+//        am.setRepeating(AlarmManager.RTC,System.currentTimeMillis()+3000,interval,alarmIntent);
 
-        am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-        Intent intent = new Intent();
-        intent.setAction("wyliao.edu.washington.quizdriod");
-        alarmIntent = PendingIntent.getBroadcast(this, 0, intent,0);
-        int interval = Integer.parseInt(sharedPrefs.getString("time","1"))*1000*8;
-        am.setRepeating(AlarmManager.RTC, System.currentTimeMillis()+3000,interval,alarmIntent);
+    };
 
 
 
 
 
+
+
+    public void updateData(){
         TableLayout topicTable = (TableLayout)findViewById(R.id.table);
         //set cata name
         QuizApp quizApp = (QuizApp) getApplication();
@@ -85,8 +171,6 @@ public class MainActivity extends ActionBarActivity {
         row3.setText(topicsStrArray[2]);
 
 
-
-
         for(int i=0;i>-1;i++) {
             View row = (View)topicTable.getChildAt(i);
 
@@ -98,7 +182,6 @@ public class MainActivity extends ActionBarActivity {
                 public void onClick(View v) {
                     View textView =((ViewGroup)v).getChildAt(0);
 
-
                     Intent next = new Intent(MainActivity.this,NextActivity.class);
                     Log.v("WenIDShit",String.valueOf(textView.getId()));
                     next.putExtra("topic",textView.getId());
@@ -107,7 +190,6 @@ public class MainActivity extends ActionBarActivity {
                 }
             });
         }
-
     }
 
 
@@ -156,7 +238,5 @@ public class MainActivity extends ActionBarActivity {
     {
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Toast.makeText(MainActivity.this,sharedPrefs.getString("urlDld","http://tednewardsandbox.site44.com/questions.json"),Toast.LENGTH_SHORT).show();
-
-
     }
 }
