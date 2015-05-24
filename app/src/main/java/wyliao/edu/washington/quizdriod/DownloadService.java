@@ -1,16 +1,22 @@
 package wyliao.edu.washington.quizdriod;
 
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Created by MSR-2 on 5/21/2015.
@@ -46,13 +52,12 @@ public class DownloadService extends IntentService {
 
         Log.i("DownloadService", "should be downloading here");
 
+
         // Star the download
         dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         enqueue = dm.enqueue(request);
-
-
     }
 
     public static void startOrStopAlarm(Context context, boolean on, int time) {

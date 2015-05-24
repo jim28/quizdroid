@@ -1,6 +1,8 @@
 package wyliao.edu.washington.quizdriod;
 
+import android.annotation.TargetApi;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -9,8 +11,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.media.audiofx.BassBoost;
+import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,12 +29,15 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.telephony.TelephonyManager;
 
 import org.w3c.dom.Text;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import android.net.NetworkInfo;
+import android.content.DialogInterface;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -37,6 +46,7 @@ public class MainActivity extends ActionBarActivity {
     PendingIntent alarmIntent = null;
     private DownloadManager dm;
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,13 +60,55 @@ public class MainActivity extends ActionBarActivity {
         filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         registerReceiver(downLoadCmpReceiver, filter);
 
+
+
+        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (null == activeNetwork) {
+            Toast.makeText(this, "no access to the Internet", Toast.LENGTH_LONG);
+
+            boolean airPlaneMode = Settings.Global.getInt(this.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+            if (airPlaneMode) {
+                AlertDialog.Builder alertDialogBuider = new AlertDialog.Builder(this);
+                alertDialogBuider.setTitle("AirPlaneMode");
+                alertDialogBuider
+                        .setMessage("Do you want to turn AirPlane mode off ?")
+                        .setCancelable(false)
+                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                startActivity(new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS));
+                            }
+
+
+                        })
+                        .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+
+                                }
+                        );
+                AlertDialog alertDialog = alertDialogBuider.create();
+                alertDialog.show();
+
+            }
+
+            if (!isMobileAvailable(this)) {
+                Toast.makeText(this,"No signal ~",Toast.LENGTH_LONG).show();
+            }
+
+        }
+
+
+
+
     }
 
 
 
     BroadcastReceiver downLoadCmpReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(final Context context, Intent intent) {
 
             String action = intent.getAction();
 
@@ -98,7 +150,7 @@ public class MainActivity extends ActionBarActivity {
                                     int n;
 
                                     while((n=fis.read(buffer)) != -1) {
-                                        strContent.append(new String(buffer,0,n));
+                                        strContent.append(new String(buffer, 0, n));
                                     }
 
                                     QuizApp quizApp = (QuizApp)getApplication();
@@ -128,6 +180,37 @@ public class MainActivity extends ActionBarActivity {
                                 break;
                             case DownloadManager.STATUS_FAILED:
                                 Toast.makeText(context, "download fail !!!!", Toast.LENGTH_LONG).show();
+
+                                DownloadService.startOrStopAlarm(context, false, 0);
+
+
+
+                                AlertDialog.Builder alertDialogBuider = new AlertDialog.Builder(context);
+                                alertDialogBuider.setTitle("Download Fail !");
+                                alertDialogBuider
+                                        .setMessage("Do you want to retry download again ?")
+                                        .setCancelable(false)
+                                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+                                                int time = Integer.parseInt(sharedPrefs.getString("time","10000"));
+                                                DownloadService.startOrStopAlarm(context, true, time);
+                                            }
+
+
+                                        })
+                                        .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        finish();
+                                                    }
+
+                                                }
+                                        );
+                                AlertDialog alertDialog = alertDialogBuider.create();
+                                alertDialog.show();
+
+
+
 
                                 // YOUR CODE HERE! Your download has failed! Now what do you want it to do? Retry? Quit application? up to you!
                                 break;
@@ -250,4 +333,14 @@ public class MainActivity extends ActionBarActivity {
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Toast.makeText(MainActivity.this,sharedPrefs.getString("urlDld","http://tednewardsandbox.site44.com/questions.json"),Toast.LENGTH_SHORT).show();
     }
+
+
+    public static Boolean isMobileAvailable(Context appcontext) {
+        TelephonyManager tel = (TelephonyManager) appcontext.getSystemService(Context.TELEPHONY_SERVICE);
+
+        return ((tel.getNetworkOperator() != null && tel.getNetworkOperator().equals("")) ? false : true);
+    }
+
 }
+
+

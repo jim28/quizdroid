@@ -75,7 +75,7 @@ public class QuizApp extends Application implements TopicRepository {
     @Override
     //load data from jason file to data structure
     public ArrayList<Topic> loadData() {
-        ArrayList<Topic> topicList = new ArrayList<Topic>();
+        topicList = new ArrayList<Topic>();
 
 
         //first check the file whether it is existing
